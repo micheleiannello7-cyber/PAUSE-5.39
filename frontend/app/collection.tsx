@@ -7,6 +7,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Image } from "expo-image";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useQuery } from "@tanstack/react-query";
+import Svg, { Circle, Defs, LinearGradient as SvgGradient, Stop } from "react-native-svg";
 
 import { api, CollectionGroup } from "@/src/api";
 import { makeStyles, useTheme, spacing, radius, typography, withAlpha } from "@/src/theme";
@@ -75,19 +76,29 @@ export default function CollectionScreen() {
         >
           <View style={styles.summary} testID="collection-summary">
             <Image source={SUMMARY_BG} style={styles.summaryBg} contentFit="cover" transition={0} testID="collection-summary-bg" />
-            {/* Velatura: leggibilità del testo a sinistra, il paesaggio resta visibile. */}
-            <LinearGradient pointerEvents="none" colors={["rgba(4,8,20,0.62)", "rgba(4,8,20,0.22)", "rgba(4,8,20,0)"]} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={styles.summaryBg} />
-            <LinearGradient pointerEvents="none" colors={["rgba(4,8,20,0)", "rgba(4,8,20,0.55)"]} start={{ x: 0, y: 0.55 }} end={{ x: 0, y: 1 }} style={styles.summaryBg} />
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryCount} testID="collection-count">{data.unlocked}</Text>
-              <Text style={styles.summaryTotal}>/ {data.total}</Text>
+            {/* Velatura leggera solo sulla metà destra per la leggibilità, il paesaggio resta vistoso. */}
+            <LinearGradient
+              pointerEvents="none"
+              colors={["rgba(4,8,20,0)", "rgba(4,8,20,0.35)", "rgba(4,8,20,0.78)"]}
+              locations={[0, 0.42, 1]}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={styles.summaryBg}
+            />
+            <View style={styles.summaryRight} pointerEvents="box-none">
+              <View style={styles.ringRow}>
+                <View style={styles.ringWrap}>
+                  <ProgressRing size={72} stroke={6} ratio={ratio} />
+                  <View style={styles.ringInner} pointerEvents="none">
+                    <Text style={styles.ringCount} testID="collection-count" numberOfLines={1}>{data.unlocked}</Text>
+                  </View>
+                </View>
+                <Text style={styles.ringTotal} numberOfLines={1}>/{data.total}</Text>
+              </View>
+              <Text style={styles.ringLabel} numberOfLines={1}>{t.collection_progress}</Text>
+              <Text style={styles.summaryQuote} testID="collection-summary-quote">{t.collection_summary_quote}</Text>
+              {data.unlocked === 0 ? <Text style={styles.empty} testID="collection-empty">{t.collection_empty}</Text> : null}
             </View>
-            <Text style={styles.summaryLabel}>{t.collection_progress.replace("{n}", String(data.unlocked)).replace("{total}", String(data.total))}</Text>
-            <View style={styles.track}>
-              <LinearGradient colors={colors.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[styles.fill, { width: `${Math.max(2, ratio * 100)}%` }]} />
-            </View>
-            {data.unlocked === 0 ? <Text style={styles.empty} testID="collection-empty">{t.collection_empty}</Text> : null}
-            <Text style={styles.summaryQuote} testID="collection-summary-quote">{t.collection_summary_quote}</Text>
           </View>
 
           {data.categories.map((g, i) => (
@@ -99,6 +110,34 @@ export default function CollectionScreen() {
         </ScrollView>
       )}
     </Screen>
+  );
+}
+
+function ProgressRing({ size, stroke, ratio }: { size: number; stroke: number; ratio: number }) {
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const dash = Math.max(0, Math.min(1, ratio)) * c;
+  return (
+    <Svg width={size} height={size}>
+      <Defs>
+        <SvgGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor="#6CC6FF" />
+          <Stop offset="1" stopColor="#4F8CFF" />
+        </SvgGradient>
+      </Defs>
+      <Circle cx={size / 2} cy={size / 2} r={r} stroke="rgba(255,255,255,0.18)" strokeWidth={stroke} fill="none" />
+      <Circle
+        cx={size / 2}
+        cy={size / 2}
+        r={r}
+        stroke="url(#ringGrad)"
+        strokeWidth={stroke}
+        strokeLinecap="round"
+        fill="none"
+        strokeDasharray={`${dash} ${c - dash}`}
+        strokeDashoffset={c / 4}
+      />
+    </Svg>
   );
 }
 
@@ -159,22 +198,28 @@ const useStyles = makeStyles((colors) => ({
   subtitle: { color: colors.muted, fontFamily: typography.body, fontSize: 11, textAlign: "center", lineHeight: 15 },
   loading: { flex: 1, alignItems: "center", justifyContent: "center" },
   summary: {
-    marginHorizontal: spacing.xl, marginTop: spacing.sm, padding: spacing.lg, borderRadius: radius.lg,
-    borderWidth: 1, borderColor: withAlpha(colors.brand, 0.45), overflow: "hidden", gap: spacing.xs, minHeight: 168,
+    marginHorizontal: spacing.xl, marginTop: spacing.sm, borderRadius: radius.lg,
+    borderWidth: 1, borderColor: withAlpha(colors.brand, 0.45), overflow: "hidden", minHeight: 196,
+    paddingVertical: spacing.lg, paddingHorizontal: spacing.lg,
   },
   summaryBg: { position: "absolute", left: 0, right: 0, top: 0, bottom: 0 },
+  summaryRight: {
+    marginLeft: "48%", gap: spacing.xs,
+  },
+  ringRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  ringWrap: { width: 72, height: 72, alignItems: "center", justifyContent: "center" },
+  ringInner: { position: "absolute", left: 0, right: 0, top: 0, bottom: 0, alignItems: "center", justifyContent: "center" },
+  ringCount: { color: "#FFFFFF", fontFamily: typography.displayHero, fontSize: 30, lineHeight: 32, textShadowColor: "rgba(0,0,0,0.6)", textShadowRadius: 6 },
+  ringTotal: { color: "rgba(234,242,255,0.78)", fontFamily: typography.bodyBold, fontSize: 18, textShadowColor: "rgba(0,0,0,0.5)", textShadowRadius: 4 },
+  ringLabel: {
+    color: "rgba(234,242,255,0.9)", fontFamily: typography.bodyMedium, fontStyle: "italic", fontSize: 14,
+    textShadowColor: "rgba(0,0,0,0.6)", textShadowRadius: 5, marginTop: 2,
+  },
   summaryQuote: {
     color: "#EAF2FF", fontFamily: typography.bodyMedium, fontStyle: "italic", fontSize: 13, lineHeight: 19,
-    marginTop: spacing.xs, textShadowColor: "rgba(0,0,0,0.6)", textShadowRadius: 6,
+    marginTop: spacing.sm, textShadowColor: "rgba(0,0,0,0.6)", textShadowRadius: 6,
   },
-  summaryRow: { flexDirection: "row", alignItems: "baseline", gap: 6 },
-  // Testi sopra la foto: chiari in entrambi i temi (la foto è sempre notturna).
-  summaryCount: { color: "#FFFFFF", fontFamily: typography.displayHero, fontSize: 40, lineHeight: 46 },
-  summaryTotal: { color: "rgba(234,242,255,0.72)", fontFamily: typography.bodyBold, fontSize: 16 },
-  summaryLabel: { color: "rgba(234,242,255,0.82)", fontFamily: typography.body, fontSize: 13, lineHeight: 18 },
-  track: { height: 6, borderRadius: 3, backgroundColor: colors.glassBg, overflow: "hidden", marginTop: spacing.sm },
-  fill: { height: 6, borderRadius: 3 },
-  empty: { color: "rgba(234,242,255,0.78)", fontFamily: typography.body, fontSize: 13, lineHeight: 19, marginTop: spacing.sm },
+  empty: { color: "rgba(234,242,255,0.78)", fontFamily: typography.body, fontSize: 12, lineHeight: 17, marginTop: spacing.xs },
   group: { marginTop: spacing.xl },
   groupHead: { flexDirection: "row", alignItems: "center", gap: spacing.sm, paddingHorizontal: spacing.xl },
   groupName: { flex: 1, color: colors.onSurface, fontFamily: typography.displayBold, fontSize: 17 },
