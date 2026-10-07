@@ -14,11 +14,13 @@ import { CategoryArtMark } from "./category-artwork";
 import { HoloClock } from "./holo-icons";
 import { useIconFamily } from "@/src/icon-theme";
 
-const ICON = 24;
-// Tema olografico: i glifi vettoriali occupano ~70% del loro riquadro e la
-// categoria è ritagliata stretta → misure scelte perché la parte visibile di
-// lampadina, oggetto categoria e orologio abbia la stessa altezza (~23px).
-const HOLO_GLYPH = 32, HOLO_CATEGORY = 27;
+// Dimensioni finali comuni a tema 3D e Olografico, scelte perché la parte
+// visibile delle tre icone (lampadina/libri · oggetto categoria · orologio)
+// abbia la stessa altezza (~23px). `KindIcon` e l'orologio PNG hanno ~15% di
+// margine trasparente dentro l'immagine, la categoria è ritagliata stretta
+// (`tight`): servono misure diverse per compensare.
+const GLYPH = 32;      // lampadina / libri · orologio (sia 3D che Olografico)
+const CATEGORY = 27;   // categoria ritagliata (sia 3D che Olografico)
 // Orologio 3D generato nello stesso stile delle icone categoria e dei CTA.
 const CLOCK = require("../../assets/images/kind-clock.png");
 
@@ -39,15 +41,15 @@ export function StoryInfoGrid({ story, minutes, inline = false, embedded = false
     { id: "kind", value: lesson ? t.lesson_badge : t.curiosity_badge,
       // Il PNG di lampadina/libri ha margini trasparenti (~15%): la si
       // ingrandisce perché l'oggetto visibile arrivi all'altezza degli altri due.
-      icon: <KindIcon kind={lesson ? "lessons" : "stories"} size={iconFamily === "holo" ? HOLO_GLYPH : ICON + 8} glow={false} testID={`${testID}-kind-icon`} /> },
+      icon: <KindIcon kind={lesson ? "lessons" : "stories"} size={GLYPH} glow={false} testID={`${testID}-kind-icon`} /> },
     { id: "category", value: category,
       // Ritaglio stretto (senza i margini trasparenti dello studio) in un
       // riquadro un po' più largo che alto: anche gli oggetti larghi (pianeta)
       // arrivano all'altezza di lampadina/libri e orologio, senza tagli.
-      icon: <CategoryArtMark categoryId={story.category_id} color={story.category_color} size={iconFamily === "holo" ? HOLO_CATEGORY : ICON} aspect={1.3} plain tight testID={`${testID}-category-icon`} /> },
+      icon: <CategoryArtMark categoryId={story.category_id} color={story.category_color} size={CATEGORY} aspect={1.3} plain tight testID={`${testID}-category-icon`} /> },
     { id: "time", value: `${minutes} ${t.min}`,
       icon: iconFamily === "holo"
-        ? <HoloClock size={HOLO_GLYPH} testID={`${testID}-time-icon`} />
+        ? <HoloClock size={GLYPH} testID={`${testID}-time-icon`} />
         : <Image source={CLOCK} style={styles.clock} contentFit="contain" transition={0} testID={`${testID}-time-icon`} /> },
   ];
   return (
@@ -97,8 +99,8 @@ const useStyles = makeStyles((colors) => ({
   cellFixed: { flexGrow: 0, flexShrink: 0 },
   cellGrow: { flex: 1, minWidth: 0 },
   divider: { width: 1, height: 28 },
-  iconWrap: { minWidth: ICON + 8, height: ICON + 8, flexShrink: 0, alignItems: "center", justifyContent: "center" },
-  clock: { width: ICON + 2, height: ICON + 2 },
+  iconWrap: { minWidth: GLYPH, height: GLYPH, flexShrink: 0, alignItems: "center", justifyContent: "center" },
+  clock: { width: GLYPH, height: GLYPH },
   // Solo i valori lunghi vanno su due righe: la barra resta unica anche su telefoni piccoli.
   value: { flexShrink: 1, color: colors.textWarm, fontFamily: typography.bodyMedium, fontSize: 11, lineHeight: 15, textAlign: "left" },
   // "MINI LEZIONE" va su due righe (MINI / LEZIONE), "CURIOSITÀ" resta su una.
