@@ -301,8 +301,8 @@ const useStyles = makeStyles((colors) => ({
   inviteLaterText: { color: colors.muted, fontFamily: typography.bodyMedium, fontSize: 13 },
 
   // Riga delle tre icone del badge (senza testo), con sottili linee verticali.
-  badgeRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  badgeIconWrap: { width: 32, height: 32, alignItems: "center", justifyContent: "center" },
+  badgeRow: { flexDirection: "row", alignItems: "center", gap: 10 },
+  badgeIconWrap: { width: 36, height: 32, alignItems: "center", justifyContent: "center" },
   badgeDivider: { width: 1, height: 18 },
   badgeClock: { width: 28, height: 28 },
 

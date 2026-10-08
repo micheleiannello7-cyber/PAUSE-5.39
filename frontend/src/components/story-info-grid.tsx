@@ -95,11 +95,14 @@ const useStyles = makeStyles((colors) => ({
   // Tipo e durata occupano solo lo spazio del loro contenuto; la categoria (il
   // nome più lungo e variabile) prende tutto il resto e va su due righe: così
   // icone e scritte non si sovrappongono mai, qualunque combinazione.
-  cell: { flexDirection: "row", paddingHorizontal: 5, gap: 5, alignItems: "center", justifyContent: "center" },
+  cell: { flexDirection: "row", paddingHorizontal: 5, gap: 7, alignItems: "center", justifyContent: "center" },
   cellFixed: { flexGrow: 0, flexShrink: 0 },
   cellGrow: { flex: 1, minWidth: 0 },
   divider: { width: 1, height: 28 },
-  iconWrap: { minWidth: GLYPH, height: GLYPH, flexShrink: 0, alignItems: "center", justifyContent: "center" },
+  // Riquadro icona: largo abbastanza per ospitare la categoria (ritaglio
+  // orizzontale, 27 × 1.3 ≈ 36 px), così l'oggetto 3D non invade mai lo
+  // spazio della scritta. width fisso → layout deterministico.
+  iconWrap: { width: 36, height: GLYPH, flexShrink: 0, alignItems: "center", justifyContent: "center" },
   clock: { width: GLYPH, height: GLYPH },
   // Solo i valori lunghi vanno su due righe: la barra resta unica anche su telefoni piccoli.
   value: { flexShrink: 1, color: colors.textWarm, fontFamily: typography.bodyMedium, fontSize: 11, lineHeight: 15, textAlign: "left" },
