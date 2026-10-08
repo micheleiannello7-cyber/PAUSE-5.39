@@ -627,6 +627,24 @@ async def health():
         db_ok = False
     return {"status": "ok" if db_ok else "degraded", "db": db_ok, "time": datetime.now(timezone.utc).isoformat()}
 
+# Endpoint di comodo per scaricare lo zip con tutte le modifiche di sessione
+# da riportare poi nel repo privato. File statico locale, nessuna autenticazione
+# richiesta: è una "handoff build" temporanea per l'utente.
+@api_router.get("/downloads/{filename}")
+async def download_bundle(filename: str):
+    import re
+    if not re.fullmatch(r"[A-Za-z0-9._-]+\.zip", filename):
+        raise HTTPException(status_code=400, detail="invalid filename")
+    path = Path(__file__).parent / "downloads" / filename
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="not found")
+    return FileResponse(
+        str(path),
+        media_type="application/zip",
+        filename=filename,
+        headers={"Cache-Control": "no-cache", "Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
 @api_router.get("/categories", response_model=List[Category])
 async def list_categories(lang: Optional[str] = Query("it")):
     docs = await db.categories.find({}, {"_id": 0}).to_list(200)
