@@ -1,0 +1,30 @@
+{
+  "summary": "PAUSE badge fixes verified end-to-end. Backend: 11/11 pytest cases pass against the live preview — GET /api/category-media/{id}?v=holo-v1&delivery=holo-v1j&cutout=true&cut=2&tight=true returns 200 for all 10 required ids (animali, scienza, cultura, spazio, natura, storia, tecnologia, psicologia, corpo-umano, geografia); every PNG is RGBA with height > 180 (cultura 320×238 confirmed → mirror-cut heuristic did NOT destroy it); every PNG's bottom row has max alpha = 0 → no shadow/mirror residue baked into the asset. Frontend: measured the DOM on the Home discover card — kind icon = 32×32, time icon = 32×32, CATEGORY icon = 30×23 (~28% shorter than kind/time, well within the 'at least 15% smaller' request). Verified 4 real categories (Animals/paw, Nature/leaf, Space/planet, Culture/book) via close-up screenshots: the pixels directly below each category icon match the surrounding badge background — no shadow, no mirror, no soft halo visible on any of them. Culture (previously the broken one) renders perfectly. The 3 cells still align, no clipping, no icon↔text overlap. The reader-ending BadgeIcons component uses the identical CategoryArtMark with size=23 and the same cutout URL, so the same clean asset is served there by construction (couldn't tap into the reader during this run but the backend pytest covers that path).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter36_category_cutout_mirror_fix.py",
+    "/app/test_reports/pytest/iter36.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "story-info-grid.tsx line 105: iconWrap width was shrunk from 36→32 px and CATEGORY size from 27→23 px (~15% smaller). Category image at render is 30×23 (23 × 1.3 aspect) inside the 32-wide wrap → 2 px breathing room horizontally, matches the comment on line 103. Fine.",
+    "media_opt.cutout_png: the 4-pass pipeline (flood-fill tol=90 → hard alpha threshold at 160/200 → dark-pixel sweep in bottom 45% → disconnected-mirror-blob detector gated by mass > 2% above AND content-below < 50% of content-above) is well-commented and defensive. The 2%-mass gate is what saved cultura from the previous destructive cut; keep it.",
+    "Reader-ending BadgeIcons duplicates the three-icon layout logic of StoryInfoGrid (lines 64-92 vs story-info-grid lines 55-74). Not a bug, but a candidate for a shared primitive if the design changes again.",
+    "Non-blocking: console still logs 'textShadow* style props are deprecated' and 'props.pointerEvents is deprecated' — RN 0.75+ deprecations, unrelated to this task but worth cleaning up in a maintenance pass."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter36_category_cutout_mirror_fix.py (new)"
+  ],
+  "success_rate": {"backend": "100% (11/11)", "frontend": "100% (4/4 categories visually clean)"},
+  "seed_data_creation": "None.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Guest flow: Continue as guest → the topic grid shows ENGLISH labels (Science/Space/Animals/Culture/Nature/Human Body/…). Tap ≥1 chip, then 'Start discovering'. On the Home card the badge is testID='home-story-meta' with children '-kind-icon', '-category-icon', '-time-icon'. The category icon <img> has src .../api/category-media/{id}?cutout=true&cut=2&tight=true&delivery=holo-v1j — pulling this URL directly and checking bottom-row alpha=0 is the fastest regression test for the mirror/shadow fix. To reach reader-ending, tap a visible story title (locator by text, not by testID — 'home-story-title' did not exist in this build) and scroll down. The reader badge is testID='next-badge-icons' once visible. Current card measurements: kind 32×32, category 30×23, time 32×32.",
+  "rca_of_issue": "N/A — verification task. Pixel-level evidence: cultura cutout returned 320×238 RGBA (vs the previous destructive 6×6 regression), confirming the 'object mass above the gap > 2%' guard in media_opt.cutout_png line 107 protects multi-part icons; mirror-detector only cuts when 'content below first empty row' < 50% of 'content above' (line 109). Bottom-row alpha=0 across all 10 tested categories confirms the third pass (lines 79-86, bottom-half partial-alpha wipe) kills the mirror halo without touching the top-half object. Frontend size change validated: category height 23 px vs kind/time 32 px = 71.9% → category is 28% smaller than the siblings, exceeding the requested ~15% reduction and matching the user's visual expectation."
+}

@@ -68,7 +68,7 @@ function BadgeIcons({ story, testID }: { story: StoryPreview; testID?: string })
   const lesson = isLesson(story);
   const items = [
     <KindIcon key="kind" kind={lesson ? "lessons" : "stories"} size={32} glow={false} testID={`${testID}-kind`} />,
-    <CategoryArtMark key="category" categoryId={story.category_id} color={story.category_color} size={27} aspect={1.3} plain tight testID={`${testID}-category`} />,
+    <CategoryArtMark key="category" categoryId={story.category_id} color={story.category_color} size={23} aspect={1.3} plain tight testID={`${testID}-category`} />,
     iconFamily === "holo"
       ? <HoloClock key="time" size={32} testID={`${testID}-time`} />
       : <Image key="time" source={CLOCK} style={styles.badgeClock} contentFit="contain" transition={0} testID={`${testID}-time`} />,
@@ -302,7 +302,7 @@ const useStyles = makeStyles((colors) => ({
 
   // Riga delle tre icone del badge (senza testo), con sottili linee verticali.
   badgeRow: { flexDirection: "row", alignItems: "center", gap: 10 },
-  badgeIconWrap: { width: 36, height: 32, alignItems: "center", justifyContent: "center" },
+  badgeIconWrap: { width: 32, height: 32, alignItems: "center", justifyContent: "center" },
   badgeDivider: { width: 1, height: 18 },
   badgeClock: { width: 28, height: 28 },
 

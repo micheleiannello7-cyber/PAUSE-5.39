@@ -20,7 +20,7 @@ import { useIconFamily } from "@/src/icon-theme";
 // margine trasparente dentro l'immagine, la categoria è ritagliata stretta
 // (`tight`): servono misure diverse per compensare.
 const GLYPH = 32;      // lampadina / libri · orologio (sia 3D che Olografico)
-const CATEGORY = 27;   // categoria ritagliata (sia 3D che Olografico)
+const CATEGORY = 23;   // categoria ritagliata (sia 3D che Olografico) — ~15% più piccola di libri/orologio
 // Orologio 3D generato nello stesso stile delle icone categoria e dei CTA.
 const CLOCK = require("../../assets/images/kind-clock.png");
 
@@ -100,9 +100,9 @@ const useStyles = makeStyles((colors) => ({
   cellGrow: { flex: 1, minWidth: 0 },
   divider: { width: 1, height: 28 },
   // Riquadro icona: largo abbastanza per ospitare la categoria (ritaglio
-  // orizzontale, 27 × 1.3 ≈ 36 px), così l'oggetto 3D non invade mai lo
+  // orizzontale, 23 × 1.3 ≈ 30 px), così l'oggetto 3D non invade mai lo
   // spazio della scritta. width fisso → layout deterministico.
-  iconWrap: { width: 36, height: GLYPH, flexShrink: 0, alignItems: "center", justifyContent: "center" },
+  iconWrap: { width: 32, height: GLYPH, flexShrink: 0, alignItems: "center", justifyContent: "center" },
   clock: { width: GLYPH, height: GLYPH },
   // Solo i valori lunghi vanno su due righe: la barra resta unica anche su telefoni piccoli.
   value: { flexShrink: 1, color: colors.textWarm, fontFamily: typography.bodyMedium, fontSize: 11, lineHeight: 15, textAlign: "left" },

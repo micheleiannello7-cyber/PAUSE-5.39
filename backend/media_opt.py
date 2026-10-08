@@ -71,6 +71,48 @@ def cutout_png(raw: bytes, tight: bool = False) -> bytes:
     # scalettature.
     alpha = cutout.getchannel("A").point(lambda a: 255 if a > 200 else (0 if a < 160 else int((a - 160) * 255 / 40)))
     cutout.putalpha(alpha)
+    # Terza passata: nella metà bassa dell'immagine qualsiasi pixel con alfa
+    # parziale è residuo di riflesso/specchio (lo stesso colore dell'oggetto
+    # ma sfumato verso trasparente) → alfa=0. L'oggetto proprio ha alfa=255
+    # pieno; il bordo AA dell'oggetto sta sopra la soglia y_floor e non viene
+    # toccato.
+    px = cutout.load()
+    w, h = cutout.size
+    y_floor = int(h * 0.55)
+    for y in range(y_floor, h):
+        for x in range(w):
+            r, g, b, a = px[x, y]
+            if 0 < a < 220:
+                px[x, y] = (0, 0, 0, 0)
+    # Quarta passata: dopo le pulizie, il mirror che sopravvive è un BLOB
+    # staccato sotto l'oggetto principale (sorgenti 3D in studio: oggetto +
+    # specchio del pavimento, separati da una riga completamente trasparente).
+    # Tagliamo tutto quello che sta sotto la prima riga vuota SOLO se:
+    #  (a) l'oggetto sopra la riga ha massa significativa,
+    #  (b) il contenuto sotto è nettamente minore del contenuto sopra (mirror).
+    # Oggetti multi-parte (es. gesto a due mani con un sottile stacco) hanno
+    # il "sotto" denso quanto il "sopra" → non vengono tagliati.
+    row_opaque_count = [0] * h
+    for y in range(h):
+        c = 0
+        for x in range(w):
+            if px[x, y][3] > 0:
+                c += 1
+        row_opaque_count[y] = c
+    total_above = 0
+    best_cut = None
+    for y in range(h):
+        if row_opaque_count[y] > 0:
+            total_above += row_opaque_count[y]
+        elif total_above > w * h * 0.02:  # oggetto con massa reale
+            below = sum(row_opaque_count[y + 1:])
+            if below > 0 and below < total_above * 0.5:
+                best_cut = y
+                break
+    if best_cut is not None:
+        for yy in range(best_cut, h):
+            for xx in range(w):
+                px[xx, yy] = (0, 0, 0, 0)
     if tight:
         bbox = cutout.getchannel("A").point(lambda alpha: 255 if alpha > 8 else 0).getbbox()
         if bbox:

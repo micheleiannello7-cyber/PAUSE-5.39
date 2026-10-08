@@ -1543,7 +1543,7 @@ async def media_for_category(request: Request, category_id: str, cutout: bool = 
     content, ctype = await cached_object(path)
     if cutout:
         from media_opt import cutout_png
-        path = f"{path}#cutout-tight-v4" if tight else f"{path}#cutout-v5"
+        path = f"{path}#cutout-tight-v7" if tight else f"{path}#cutout-v8"
         content, ctype = await cached_derived(path, lambda: (cutout_png(content, tight=tight), "image/png"))
     return _image_response(request, path, content, ctype)
 
