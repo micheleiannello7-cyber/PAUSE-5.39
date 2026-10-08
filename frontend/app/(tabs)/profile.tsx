@@ -348,6 +348,15 @@ export default function Profile() {
               {iconFamily === "3d" ? <Text style={styles.themeFamilyStatus}>{t.theme_current}</Text> : null}
             </Pressable>
           </View>
+          {/* Preview di 3 proposte di terzo tema (Linea · Essenziale · Soft Neon). */}
+          <Pressable testID="theme-preview-cta" onPress={() => router.push("/theme-preview")} style={styles.themePreviewCta}>
+            <Ionicons name="sparkles-outline" size={18} color={colors.brand} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.themePreviewTitle}>Prova nuovi temi</Text>
+              <Text style={styles.themePreviewHint}>3 proposte in anteprima: scegli quella che preferisci.</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.muted} />
+          </Pressable>
         </View>
       </Section>
 
@@ -610,6 +619,13 @@ const useStyles = makeStyles((colors) => ({
   },
   themeFamilyName: { color: colors.onSurface, fontFamily: typography.bodyBold, fontSize: 12 },
   themeFamilyStatus: { color: colors.cyan, fontFamily: typography.bodyMedium, fontSize: 10, letterSpacing: 0.5 },
+  themePreviewCta: {
+    flexDirection: "row", alignItems: "center", gap: spacing.md, marginTop: spacing.sm,
+    paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.md,
+    borderWidth: 1, borderColor: withAlpha(colors.brand, 0.35), backgroundColor: withAlpha(colors.brand, 0.08),
+  },
+  themePreviewTitle: { color: colors.onSurface, fontFamily: typography.bodyBold, fontSize: 13 },
+  themePreviewHint: { color: colors.muted, fontFamily: typography.body, fontSize: 11, marginTop: 1 },
   comingPill: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: radius.pill, backgroundColor: colors.overlay },
   comingPillText: { color: colors.muted, fontFamily: typography.bodyBold, fontSize: 9, letterSpacing: 0.8 },
 }));
