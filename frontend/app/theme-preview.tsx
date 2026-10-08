@@ -1,282 +1,318 @@
-// PAUSE — anteprima di 3 proposte di terzo tema icone (Linea · Essenziale ·
-// Soft Neon). Non modifica il motore dei temi: è solo un mockup per scegliere.
-// L'utente apre la pagina dal profilo → "Prova nuovi temi".
+// PAUSE — anteprima di 3 proposte di terzo tema a RENDER 3D (Claymorph · Low-Poly · Gemstone).
+// Non modifica il motore dei temi: ogni mockup è un SVG a gradienti con
+// highlight e ombra che approssima il materiale 3D del tema. Scelto lo stile,
+// rigeneriamo i veri render AI per tutte e 12 le categorie e li agganciamo
+// come terzo tema in Profilo → Tema (accanto a Olografico e 3D Realistico).
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import Svg, { Circle, Path, Defs, LinearGradient as SvgGradient, Stop, Rect } from "react-native-svg";
 import Ionicons from "@react-native-vector-icons/ionicons";
+import Svg, { Defs, LinearGradient as SvgGradient, RadialGradient, Stop, Path, Circle, Rect, Ellipse, Polygon } from "react-native-svg";
 
-import { Screen } from "@/src/components/screen";
 import { makeStyles, useTheme, spacing, radius, typography, withAlpha } from "@/src/theme";
 
-// Path condivisi (gli stessi di holo-icons, cosí il confronto resta coerente).
-const BULB = "M12 3.4 C8.4 3.4 5.7 6.1 5.7 9.4 C5.7 11.6 6.9 13 8.1 14.2 C8.8 14.9 9.3 15.6 9.5 16.6 H14.5 C14.7 15.6 15.2 14.9 15.9 14.2 C17.1 13 18.3 11.6 18.3 9.4 C18.3 6.1 15.6 3.4 12 3.4 Z";
-const BOOK = "M12 6.6 C10 5.3 7.5 4.9 5 5.3 V18 C7.5 17.6 10 18 12 19.2 C14 18 16.5 17.6 19 18 V5.3 C16.5 4.9 14 5.3 12 6.6 Z";
-// Categoria mock = "pianeta" (viola Spazio).
-const PLANET_C = { cx: 12, cy: 12, r: 6.8 };
-const PLANET_RING = "M4.2 11 C7 7.6 15 7.6 19.8 11 C17 14.6 9 14.6 4.2 11 Z";
+type Style = "clay" | "lowpoly" | "gem";
 
-// ──────────────────────────────────────────────────────────────
-// Mockup A — Linea / Ink Sketch
-// Tratto d'inchiostro leggero + sfondo "carta avorio". Analogico, calmo.
-function InkIcon({ pathOrCircle, size = 44 }: { pathOrCircle: "bulb" | "book" | "clock" | "planet"; size?: number }) {
-  const INK = "#2A1E12";
-  const paper = "#F3E8CE";
-  const sw = 1.6;
+// ============== Icone 3D "fatte a mano" via SVG, per dare un'anteprima
+// realistica del materiale di ciascun tema. Nel tema vero saranno render
+// AI (come gli attuali Olografico e 3D Realistico).
+
+function Bulb({ style, size = 72 }: { style: Style; size?: number }) {
+  // CLAY: corpo pastello giallo-crema, highlight bianco morbido in alto.
+  // LOWPOLY: due facce (light / shadow) con sfaccettatura verticale.
+  // GEM: vetro dorato lucido con riflessi caldi.
+  const grads = {
+    clay:    { fill1: "#FFE28F", fill2: "#F0B457", base: "#8E6A2A", hl: "rgba(255,255,255,0.65)" },
+    lowpoly: { fill1: "#F6D06C", fill2: "#AC7F28", base: "#6E4E12", hl: "rgba(255,255,255,0.35)" },
+    gem:     { fill1: "#FFD36B", fill2: "#C97A1F", base: "#5A2E07", hl: "rgba(255,246,214,0.9)" },
+  }[style];
   return (
-    <View style={{ width: size, height: size, borderRadius: size / 4, backgroundColor: paper, alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-      <Svg width={size * 0.82} height={size * 0.82} viewBox="0 0 24 24">
-        {pathOrCircle === "bulb" ? (
-          <>
-            <Path d={BULB} stroke={INK} strokeWidth={sw} fill="none" strokeLinecap="round" strokeLinejoin="round" />
-            <Path d="M9.6 18.3 H14.4" stroke={INK} strokeWidth={sw} strokeLinecap="round" />
-            <Path d="M10.5 20.5 H13.5" stroke={INK} strokeWidth={sw} strokeLinecap="round" />
-            {/* Hatching tratteggio */}
-            <Path d="M7 9.5 L8.5 8" stroke={INK} strokeWidth={0.6} opacity={0.55} />
-            <Path d="M7.5 11 L9 9.5" stroke={INK} strokeWidth={0.6} opacity={0.55} />
-            <Path d="M8 12.5 L9.5 11" stroke={INK} strokeWidth={0.6} opacity={0.55} />
-          </>
-        ) : pathOrCircle === "book" ? (
-          <>
-            <Path d={BOOK} stroke={INK} strokeWidth={sw} fill="none" strokeLinecap="round" strokeLinejoin="round" />
-            <Path d="M12 6.6 V19.2" stroke={INK} strokeWidth={sw} />
-            <Path d="M6 8 L10 7.5" stroke={INK} strokeWidth={0.7} opacity={0.5} />
-            <Path d="M6 10 L10 9.5" stroke={INK} strokeWidth={0.7} opacity={0.5} />
-            <Path d="M14 7.5 L18 8" stroke={INK} strokeWidth={0.7} opacity={0.5} />
-            <Path d="M14 9.5 L18 10" stroke={INK} strokeWidth={0.7} opacity={0.5} />
-          </>
-        ) : pathOrCircle === "clock" ? (
-          <>
-            <Circle cx={12} cy={12.4} r={8.4} stroke={INK} strokeWidth={sw} fill="none" />
-            <Path d="M12 7.6 V12.4 L15.6 13.9" stroke={INK} strokeWidth={sw} strokeLinecap="round" fill="none" />
-          </>
-        ) : (
-          <>
-            <Circle cx={PLANET_C.cx} cy={PLANET_C.cy} r={PLANET_C.r} stroke={INK} strokeWidth={sw} fill="none" />
-            <Path d={PLANET_RING} stroke={INK} strokeWidth={sw} fill="none" strokeLinecap="round" />
-            {/* Puntini ombra */}
-            <Circle cx={10} cy={10.5} r={0.5} fill={INK} opacity={0.6} />
-            <Circle cx={13.5} cy={13} r={0.6} fill={INK} opacity={0.6} />
-          </>
-        )}
-      </Svg>
-    </View>
+    <Svg width={size} height={size} viewBox="0 0 72 72">
+      <Defs>
+        <RadialGradient id="bulbClay" cx="40%" cy="38%" r="55%">
+          <Stop offset="0" stopColor={grads.fill1} />
+          <Stop offset="1" stopColor={grads.fill2} />
+        </RadialGradient>
+        <SvgGradient id="bulbLow" x1="0" y1="0" x2="1" y2="0">
+          <Stop offset="0" stopColor={grads.fill1} />
+          <Stop offset="0.5" stopColor={grads.fill1} />
+          <Stop offset="0.5" stopColor={grads.fill2} />
+          <Stop offset="1" stopColor={grads.fill2} />
+        </SvgGradient>
+        <SvgGradient id="bulbGem" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor={grads.fill1} />
+          <Stop offset="0.55" stopColor={grads.fill2} />
+          <Stop offset="1" stopColor={grads.base} />
+        </SvgGradient>
+      </Defs>
+      {/* Contact-shadow discreto, non alone duro. */}
+      <Ellipse cx="36" cy="63" rx="18" ry="2.5" fill="rgba(0,0,0,0.25)" />
+      {/* Base/filetto. */}
+      <Rect x="27" y="48" width="18" height="4" rx="1.2" fill={grads.base} />
+      <Rect x="28" y="52" width="16" height="3" rx="1" fill={grads.base} />
+      <Rect x="29.5" y="55" width="13" height="3" rx="1" fill={grads.base} />
+      {/* Corpo lampadina. */}
+      <Path d="M36 8 C24 8 18 18 20 28 C21.5 36 27 40 27 48 L45 48 C45 40 50.5 36 52 28 C54 18 48 8 36 8 Z"
+            fill={style === "clay" ? "url(#bulbClay)" : style === "lowpoly" ? "url(#bulbLow)" : "url(#bulbGem)"} />
+      {/* Highlight realistico. */}
+      {style === "clay" && (
+        <Path d="M28 16 C25 20 24 25 25 30" stroke={grads.hl} strokeWidth="4" strokeLinecap="round" fill="none" />
+      )}
+      {style === "lowpoly" && (
+        <>
+          <Polygon points="36,8 20,28 36,28" fill="rgba(255,255,255,0.18)" />
+          <Polygon points="36,8 52,28 36,28" fill="rgba(0,0,0,0.12)" />
+        </>
+      )}
+      {style === "gem" && (
+        <Path d="M28 12 Q25 18 26 26" stroke={grads.hl} strokeWidth="2.5" strokeLinecap="round" fill="none" />
+      )}
+    </Svg>
   );
 }
 
-// ──────────────────────────────────────────────────────────────
-// Mockup B — Essenziale / Flat monochrome
-// Un solo colore (accento), glifo pieno, zero decorazioni.
-function FlatIcon({ pathOrCircle, size = 44, brand }: { pathOrCircle: "bulb" | "book" | "clock" | "planet"; size?: number; brand: string }) {
+function Book({ style, size = 72 }: { style: Style; size?: number }) {
+  const grads = {
+    clay:    { c1: "#F3A6A0", c2: "#C56A66", spine: "#8A3A36", pages: "#FFF4EC" },
+    lowpoly: { c1: "#E58B82", c2: "#A05048", spine: "#6B2A26", pages: "#F4E0CF" },
+    gem:     { c1: "#C77BE5", c2: "#5D2EA6", spine: "#2E0D52", pages: "#F6E7FF" },
+  }[style];
   return (
-    <View style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }}>
-      <Svg width={size * 0.92} height={size * 0.92} viewBox="0 0 24 24">
-        {pathOrCircle === "bulb" ? (
-          <>
-            <Path d={BULB} fill={brand} />
-            <Path d="M9.6 18.3 H14.4" stroke={brand} strokeWidth={1.6} strokeLinecap="round" />
-            <Path d="M10.5 20.5 H13.5" stroke={brand} strokeWidth={1.6} strokeLinecap="round" />
-          </>
-        ) : pathOrCircle === "book" ? (
-          <>
-            <Path d={BOOK} fill={brand} />
-          </>
-        ) : pathOrCircle === "clock" ? (
-          <>
-            <Circle cx={12} cy={12.4} r={8.4} fill={brand} />
-            <Path d="M12 7.6 V12.4 L15.6 13.9" stroke="#FFFFFF" strokeWidth={1.7} strokeLinecap="round" fill="none" />
-          </>
-        ) : (
-          <>
-            <Circle cx={12} cy={12} r={6.8} fill={brand} />
-            <Path d={PLANET_RING} fill={brand} opacity={0.55} />
-          </>
-        )}
-      </Svg>
-    </View>
+    <Svg width={size} height={size} viewBox="0 0 72 72">
+      <Defs>
+        <SvgGradient id={`book-${style}`} x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor={grads.c1} />
+          <Stop offset="1" stopColor={grads.c2} />
+        </SvgGradient>
+      </Defs>
+      <Ellipse cx="36" cy="60" rx="22" ry="2.5" fill="rgba(0,0,0,0.25)" />
+      {/* Pagine. */}
+      <Rect x="14" y="20" width="44" height="36" rx="3" fill={grads.pages} />
+      <Rect x="14" y="20" width="44" height="36" rx="3" fill="none" stroke="rgba(0,0,0,0.08)" />
+      {/* Copertina. */}
+      <Path d="M16 16 L58 16 L58 56 C58 56 46 50 36 52 C26 50 14 56 14 56 L14 18 Z" fill={`url(#book-${style})`} />
+      {/* Dorso. */}
+      <Rect x="34" y="16" width="4" height="36" fill={grads.spine} opacity="0.6" />
+      {/* Highlight. */}
+      {style === "clay" && <Path d="M20 22 Q24 25 24 32" stroke="rgba(255,255,255,0.55)" strokeWidth="3" fill="none" strokeLinecap="round" />}
+      {style === "lowpoly" && <Polygon points="16,16 36,16 20,52" fill="rgba(255,255,255,0.12)" />}
+      {style === "gem" && <Path d="M20 22 Q22 30 22 42" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" strokeLinecap="round" />}
+    </Svg>
   );
 }
 
-// ──────────────────────────────────────────────────────────────
-// Mockup C — Soft Neon / glow doppio stroke
-// Contorno gradiente + alone colorato tenue dietro: playful ma pacato.
-function NeonIcon({ pathOrCircle, size = 44, brand, brandSecondary, g0, g1 }:
-  { pathOrCircle: "bulb" | "book" | "clock" | "planet"; size?: number; brand: string; brandSecondary: string; g0: string; g1: string }) {
-  const sId = `neon-${pathOrCircle}`;
-  const haloId = `halo-${pathOrCircle}`;
-  const sw = 2.0;
+function Planet({ style, size = 72 }: { style: Style; size?: number }) {
+  const grads = {
+    clay:    { c1: "#7FD4D2", c2: "#2E8A95", ring: "#F4C98A", band: "#2A6A72" },
+    lowpoly: { c1: "#6FC2BF", c2: "#1F6670", ring: "#D8A762", band: "#154750" },
+    gem:     { c1: "#6EDAC9", c2: "#1B5F65", ring: "#F6E27A", band: "#0E3C44" },
+  }[style];
   return (
-    <View style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }}>
-      <Svg width={size * 0.96} height={size * 0.96} viewBox="0 0 24 24">
-        <Defs>
-          <SvgGradient id={sId} x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-            <Stop offset="0" stopColor={g0} />
-            <Stop offset="0.5" stopColor={brandSecondary} />
-            <Stop offset="1" stopColor={g1} />
-          </SvgGradient>
-          <SvgGradient id={haloId} x1="0" y1="0" x2="0" y2="24" gradientUnits="userSpaceOnUse">
-            <Stop offset="0" stopColor={brand} stopOpacity={0.0} />
-            <Stop offset="1" stopColor={brand} stopOpacity={0.22} />
-          </SvgGradient>
-        </Defs>
-        <Rect x={0} y={0} width={24} height={24} rx={6} fill={`url(#${haloId})`} />
-        {pathOrCircle === "bulb" ? (
-          <>
-            <Path d={BULB} stroke={`url(#${sId})`} strokeWidth={sw} fill="none" strokeLinecap="round" strokeLinejoin="round" />
-            <Path d={BULB} stroke={brand} strokeWidth={0.9} fill="none" opacity={0.5} />
-            <Path d="M9.6 18.3 H14.4" stroke={`url(#${sId})`} strokeWidth={sw} strokeLinecap="round" />
-            <Path d="M10.5 20.5 H13.5" stroke={`url(#${sId})`} strokeWidth={sw} strokeLinecap="round" />
-          </>
-        ) : pathOrCircle === "book" ? (
-          <>
-            <Path d={BOOK} stroke={`url(#${sId})`} strokeWidth={sw} fill="none" strokeLinecap="round" strokeLinejoin="round" />
-            <Path d="M12 6.6 V19.2" stroke={`url(#${sId})`} strokeWidth={sw} />
-          </>
-        ) : pathOrCircle === "clock" ? (
-          <>
-            <Circle cx={12} cy={12.4} r={8.4} stroke={`url(#${sId})`} strokeWidth={sw} fill="none" />
-            <Path d="M12 7.6 V12.4 L15.6 13.9" stroke={`url(#${sId})`} strokeWidth={sw} strokeLinecap="round" fill="none" />
-          </>
-        ) : (
-          <>
-            <Circle cx={12} cy={12} r={6.8} stroke={`url(#${sId})`} strokeWidth={sw} fill="none" />
-            <Path d={PLANET_RING} stroke={`url(#${sId})`} strokeWidth={sw} fill="none" strokeLinecap="round" />
-          </>
-        )}
-      </Svg>
-    </View>
+    <Svg width={size} height={size} viewBox="0 0 72 72">
+      <Defs>
+        <RadialGradient id={`planet-${style}`} cx="38%" cy="35%" r="65%">
+          <Stop offset="0" stopColor={grads.c1} />
+          <Stop offset="1" stopColor={grads.c2} />
+        </RadialGradient>
+      </Defs>
+      <Ellipse cx="36" cy="60" rx="22" ry="2.5" fill="rgba(0,0,0,0.25)" />
+      {/* Anello dietro. */}
+      <Ellipse cx="36" cy="38" rx="30" ry="7" fill="none" stroke={grads.ring} strokeWidth="4" opacity="0.9" />
+      {/* Pianeta. */}
+      <Circle cx="36" cy="36" r="20" fill={`url(#planet-${style})`} />
+      {/* Banda planet. */}
+      <Path d="M18 38 Q36 44 54 38" stroke={grads.band} strokeWidth="2.5" fill="none" opacity="0.55" />
+      {/* Highlight. */}
+      {style === "clay" && <Circle cx="28" cy="28" r="5" fill="rgba(255,255,255,0.45)" />}
+      {style === "lowpoly" && <Polygon points="36,16 56,36 36,36" fill="rgba(255,255,255,0.18)" />}
+      {style === "gem" && <Path d="M22 24 Q30 20 42 22" stroke="rgba(255,255,255,0.65)" strokeWidth="2.5" fill="none" strokeLinecap="round" />}
+      {/* Anello davanti. */}
+      <Path d="M6 38 Q36 48 66 38" stroke={grads.ring} strokeWidth="4" fill="none" opacity="0.9" />
+    </Svg>
   );
 }
 
-// ──────────────────────────────────────────────────────────────
-// Riga icone demo + mini card storia stilizzata, per vedere il badge in uso.
-function MockBadge({ renderIcon }: { renderIcon: (name: "book" | "planet" | "clock") => React.ReactNode }) {
-  const { colors } = useTheme();
-  const styles = useBadgeStyles();
+function Clock({ style, size = 72 }: { style: Style; size?: number }) {
+  const grads = {
+    clay:    { case1: "#B5D6FF", case2: "#5A86BF", face: "#FFFBF3", hand: "#2A3B5F" },
+    lowpoly: { case1: "#9EC0E6", case2: "#466C9F", face: "#F3EFE5", hand: "#1B2A4A" },
+    gem:     { case1: "#D7E2FF", case2: "#4762A8", face: "#FFF9F0", hand: "#2A1F55" },
+  }[style];
   return (
-    <View style={[styles.badge, { backgroundColor: withAlpha(colors.surface, 0.6), borderColor: withAlpha(colors.muted, 0.5) }]}>
-      <View style={styles.cell}>{renderIcon("book")}<Text style={[styles.cellTxt, { color: colors.onSurface }]}>Curiosità</Text></View>
-      <View style={[styles.divider, { backgroundColor: withAlpha(colors.muted, 0.4) }]} />
-      <View style={styles.cell}>{renderIcon("planet")}<Text style={[styles.cellTxt, { color: colors.onSurface }]}>Spazio</Text></View>
-      <View style={[styles.divider, { backgroundColor: withAlpha(colors.muted, 0.4) }]} />
-      <View style={styles.cell}>{renderIcon("clock")}<Text style={[styles.cellTxt, { color: colors.onSurface }]}>3 min</Text></View>
-    </View>
+    <Svg width={size} height={size} viewBox="0 0 72 72">
+      <Defs>
+        <RadialGradient id={`clock-${style}`} cx="40%" cy="35%" r="60%">
+          <Stop offset="0" stopColor={grads.case1} />
+          <Stop offset="1" stopColor={grads.case2} />
+        </RadialGradient>
+      </Defs>
+      <Ellipse cx="36" cy="60" rx="22" ry="2.5" fill="rgba(0,0,0,0.25)" />
+      {/* Cassa. */}
+      <Circle cx="36" cy="36" r="26" fill={`url(#clock-${style})`} />
+      <Circle cx="36" cy="36" r="22" fill={grads.face} />
+      {/* Tacche. */}
+      {[0, 90, 180, 270].map((deg) => {
+        const rad = (deg * Math.PI) / 180;
+        const x1 = 36 + Math.cos(rad) * 20, y1 = 36 + Math.sin(rad) * 20;
+        const x2 = 36 + Math.cos(rad) * 17, y2 = 36 + Math.sin(rad) * 17;
+        return <Path key={deg} d={`M${x1} ${y1} L${x2} ${y2}`} stroke={grads.hand} strokeWidth="2" strokeLinecap="round" />;
+      })}
+      {/* Lancette. */}
+      <Path d="M36 36 L36 22" stroke={grads.hand} strokeWidth="3" strokeLinecap="round" />
+      <Path d="M36 36 L48 40" stroke={grads.hand} strokeWidth="2.5" strokeLinecap="round" />
+      <Circle cx="36" cy="36" r="2.5" fill={grads.hand} />
+      {/* Highlight. */}
+      {style === "clay" && <Path d="M22 22 Q18 32 20 42" stroke="rgba(255,255,255,0.5)" strokeWidth="4" fill="none" strokeLinecap="round" />}
+      {style === "lowpoly" && <Polygon points="36,10 62,36 36,36" fill="rgba(255,255,255,0.18)" />}
+      {style === "gem" && <Path d="M18 24 Q26 18 38 20" stroke="rgba(255,255,255,0.55)" strokeWidth="2.5" fill="none" strokeLinecap="round" />}
+    </Svg>
   );
 }
+
+// ============== Card del mockup
+
+type Candidate = {
+  id: Style;
+  name: string;
+  tagline: string;
+  blurb: string;
+  bg: string;      // sfondo scheda, per far risaltare il materiale
+  accent: string;  // colore pill / dettagli
+};
+
+const CANDIDATES: Candidate[] = [
+  {
+    id: "clay",
+    name: "Claymorph 3D",
+    tagline: "ARGILLA · CALDO",
+    blurb: "Oggetti in plastilina morbida, pastelli caldi e highlight soffusi. Da Pixar: invita al relax, perfetto per leggere senza fretta.",
+    bg: "#1D1A2A",
+    accent: "#F0B457",
+  },
+  {
+    id: "lowpoly",
+    name: "Low-Poly 3D",
+    tagline: "GEOMETRICO · PULITO",
+    blurb: "Oggetti 3D con sfaccettature a vista e shading a due toni. Estetica da videogioco indie moderno, molto distintiva e leggera.",
+    bg: "#102030",
+    accent: "#A05048",
+  },
+  {
+    id: "gem",
+    name: "Gemstone 3D",
+    tagline: "GIOIELLO · PREMIUM",
+    blurb: "Vetro dicroico, oro liquido, ametista lucida. Elegante e premium — PAUSE diventa il tuo museo privato del sapere.",
+    bg: "#0B1024",
+    accent: "#C97A1F",
+  },
+];
 
 export default function ThemePreviewScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { colors } = useTheme();
   const styles = useStyles();
+
   return (
-    <Screen testID="theme-preview-screen">
-      <View style={[styles.header, { paddingTop: insets.top + spacing.sm }]}>
-        <Pressable testID="theme-preview-back" onPress={() => router.back()} hitSlop={10} style={styles.backBtn}>
-          <Ionicons name="chevron-back" size={22} color={colors.onSurface} />
+    <View style={{ flex: 1, backgroundColor: colors.surface }}>
+      <View style={{ height: insets.top }} />
+      <View style={styles.topBar}>
+        <Pressable onPress={() => router.back()} hitSlop={16} testID="theme-preview-back">
+          <Ionicons name="chevron-back" size={26} color={colors.onSurface} />
         </Pressable>
-        <Text style={styles.title}>Prova nuovi temi</Text>
-        <Text style={styles.subtitle}>Tre proposte, scegli quella che ti piace di più.</Text>
       </View>
-
-      <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + spacing.xl }]} showsVerticalScrollIndicator={false}>
-        {/* ── Mockup A — Linea ── */}
-        <View style={styles.card} testID="mockup-linea">
-          <View style={styles.cardHead}>
-            <Text style={styles.name}>Linea</Text>
-            <Text style={styles.tag}>Analogico · Calmo</Text>
-          </View>
-          <Text style={styles.desc}>
-            Illustrazione a tratto d&apos;inchiostro su un piccolo riquadro di carta avorio. Caldo, da quaderno di appunti — perfetto per leggere senza fatica.
+      <ScrollView contentContainerStyle={{ paddingHorizontal: spacing.xl, paddingBottom: insets.bottom + spacing.xl, gap: spacing.lg }}>
+        <View style={{ gap: 6 }}>
+          <Text style={[styles.title, { color: colors.onSurface }]}>Prova nuovi temi</Text>
+          <Text style={[styles.subtitle, { color: colors.muted }]}>
+            Tre direzioni 3D distinte, come lo sono già Olografico e 3D Realistico. Scelta la tua preferita, rigenero
+            tutti i render AI delle 12 categorie e la aggancio come terzo tema.
           </Text>
-          <View style={styles.iconsRow}>
-            <InkIcon pathOrCircle="bulb" />
-            <InkIcon pathOrCircle="book" />
-            <InkIcon pathOrCircle="planet" />
-            <InkIcon pathOrCircle="clock" />
-          </View>
-          <MockBadge
-            renderIcon={(n) => (
-              <InkIcon pathOrCircle={n === "book" ? "book" : n === "planet" ? "planet" : "clock"} size={30} />
-            )}
-          />
         </View>
 
-        {/* ── Mockup B — Essenziale ── */}
-        <View style={styles.card} testID="mockup-essenziale">
-          <View style={styles.cardHead}>
-            <Text style={styles.name}>Essenziale</Text>
-            <Text style={styles.tag}>Minimale · Pulito</Text>
-          </View>
-          <Text style={styles.desc}>
-            Un solo colore (quello dell&apos;accento di PAUSE), glifo pieno, zero decorazioni. Massima leggibilità, zero rumore visivo.
-          </Text>
-          <View style={styles.iconsRow}>
-            <FlatIcon pathOrCircle="bulb" brand={colors.brand} />
-            <FlatIcon pathOrCircle="book" brand={colors.brand} />
-            <FlatIcon pathOrCircle="planet" brand={colors.brand} />
-            <FlatIcon pathOrCircle="clock" brand={colors.brand} />
-          </View>
-          <MockBadge
-            renderIcon={(n) => (
-              <FlatIcon pathOrCircle={n === "book" ? "book" : n === "planet" ? "planet" : "clock"} size={30} brand={colors.brand} />
-            )}
-          />
-        </View>
+        {CANDIDATES.map((c, i) => (
+          <View key={c.id} style={[styles.card, { backgroundColor: c.bg }]} testID={`theme-candidate-${c.id}`}>
+            <View style={styles.cardHeader}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.cardName}>{c.name}</Text>
+                <Text style={[styles.cardTag, { color: c.accent }]}>{c.tagline}</Text>
+              </View>
+              <View style={[styles.indexPill, { backgroundColor: withAlpha(c.accent, 0.18), borderColor: withAlpha(c.accent, 0.6) }]}>
+                <Text style={[styles.indexTxt, { color: c.accent }]}>{String.fromCharCode(65 + i)}</Text>
+              </View>
+            </View>
 
-        {/* ── Mockup C — Soft Neon ── */}
-        <View style={styles.card} testID="mockup-soft-neon">
-          <View style={styles.cardHead}>
-            <Text style={styles.name}>Soft Neon</Text>
-            <Text style={styles.tag}>Vivace · Pacato</Text>
-          </View>
-          <Text style={styles.desc}>
-            Doppio tratto con alone colorato tenue dietro il glifo: moderno e giocoso, ma senza strillare. Un passo in più rispetto all&apos;olografico.
-          </Text>
-          <View style={styles.iconsRow}>
-            <NeonIcon pathOrCircle="bulb" brand={colors.brand} brandSecondary={colors.brandSecondary} g0={colors.gradient[0]} g1={colors.gradient[1]} />
-            <NeonIcon pathOrCircle="book" brand={colors.brand} brandSecondary={colors.brandSecondary} g0={colors.gradient[0]} g1={colors.gradient[1]} />
-            <NeonIcon pathOrCircle="planet" brand={colors.brand} brandSecondary={colors.brandSecondary} g0={colors.gradient[0]} g1={colors.gradient[1]} />
-            <NeonIcon pathOrCircle="clock" brand={colors.brand} brandSecondary={colors.brandSecondary} g0={colors.gradient[0]} g1={colors.gradient[1]} />
-          </View>
-          <MockBadge
-            renderIcon={(n) => (
-              <NeonIcon pathOrCircle={n === "book" ? "book" : n === "planet" ? "planet" : "clock"} size={30}
-                brand={colors.brand} brandSecondary={colors.brandSecondary} g0={colors.gradient[0]} g1={colors.gradient[1]} />
-            )}
-          />
-        </View>
+            <Text style={styles.cardBlurb}>{c.blurb}</Text>
 
-        <Text style={styles.footer}>
-          Dimmi quale preferisci (Linea · Essenziale · Soft Neon) e lo installo come terzo tema insieme a Olografico e 3D.
+            {/* Icone-tipo del tema: lampadina, libro, pianeta, orologio. */}
+            <View style={styles.iconRow}>
+              <View style={[styles.iconTile, { backgroundColor: withAlpha("#FFFFFF", 0.04), borderColor: withAlpha(c.accent, 0.25) }]}>
+                <Bulb style={c.id} size={64} />
+              </View>
+              <View style={[styles.iconTile, { backgroundColor: withAlpha("#FFFFFF", 0.04), borderColor: withAlpha(c.accent, 0.25) }]}>
+                <Book style={c.id} size={64} />
+              </View>
+              <View style={[styles.iconTile, { backgroundColor: withAlpha("#FFFFFF", 0.04), borderColor: withAlpha(c.accent, 0.25) }]}>
+                <Planet style={c.id} size={64} />
+              </View>
+              <View style={[styles.iconTile, { backgroundColor: withAlpha("#FFFFFF", 0.04), borderColor: withAlpha(c.accent, 0.25) }]}>
+                <Clock style={c.id} size={64} />
+              </View>
+            </View>
+
+            {/* Mini badge come apparirebbe nelle story card. */}
+            <View style={[styles.badge, { backgroundColor: withAlpha("#FFFFFF", 0.06), borderColor: withAlpha(c.accent, 0.35) }]}>
+              <View style={styles.badgeCell}>
+                <Book style={c.id} size={26} />
+                <Text style={styles.badgeTxt}>Curiosità</Text>
+              </View>
+              <View style={[styles.badgeDiv, { backgroundColor: withAlpha(c.accent, 0.35) }]} />
+              <View style={styles.badgeCell}>
+                <Planet style={c.id} size={26} />
+                <Text style={styles.badgeTxt}>Spazio</Text>
+              </View>
+              <View style={[styles.badgeDiv, { backgroundColor: withAlpha(c.accent, 0.35) }]} />
+              <View style={styles.badgeCell}>
+                <Clock style={c.id} size={26} />
+                <Text style={styles.badgeTxt}>3 min</Text>
+              </View>
+            </View>
+          </View>
+        ))}
+
+        <Text style={[styles.footer, { color: colors.muted }]}>
+          Dimmi quale ti piace (A · Claymorph, B · Low-Poly, C · Gemstone). Nota: queste icone sono un&apos;anteprima in SVG; nel tema vero
+          saranno veri render 3D AI come lo sono gli altri due temi — li genero quando la Universal Key è di nuovo carica.
         </Text>
       </ScrollView>
-    </Screen>
+    </View>
   );
 }
 
 const useStyles = makeStyles((colors) => ({
-  header: { paddingHorizontal: spacing.xl, paddingBottom: spacing.sm },
-  backBtn: { width: 36, height: 36, borderRadius: 18, alignItems: "flex-start", justifyContent: "center" },
-  title: { fontFamily: typography.displayHero, fontSize: 28, color: colors.onSurface, marginTop: spacing.xs },
-  subtitle: { fontFamily: typography.body, fontSize: 13, color: colors.muted, marginTop: 4 },
-  scroll: { paddingHorizontal: spacing.xl, paddingTop: spacing.md, gap: spacing.lg },
-  card: {
-    borderRadius: radius.lg, padding: spacing.lg, backgroundColor: colors.surface,
-    borderWidth: 1, borderColor: withAlpha(colors.muted, 0.35), gap: spacing.md,
-  },
-  cardHead: { flexDirection: "row", alignItems: "baseline", gap: spacing.sm },
-  name: { fontFamily: typography.displayHero, fontSize: 22, color: colors.onSurface },
-  tag: { fontFamily: typography.bodyMedium, fontSize: 11, color: colors.muted, textTransform: "uppercase", letterSpacing: 0.6 },
-  desc: { fontFamily: typography.body, fontSize: 13.5, lineHeight: 19, color: colors.onSurface },
-  iconsRow: { flexDirection: "row", gap: spacing.md, alignItems: "center", paddingVertical: spacing.sm, justifyContent: "flex-start" },
-  footer: { fontFamily: typography.bodyMedium, fontSize: 12, color: colors.muted, textAlign: "center", marginTop: spacing.md, fontStyle: "italic" },
-}));
+  topBar: { paddingHorizontal: spacing.xl, paddingVertical: spacing.sm, flexDirection: "row", alignItems: "center" },
+  title: { fontFamily: typography.displayHero, fontSize: 28, lineHeight: 32 },
+  subtitle: { fontFamily: typography.body, fontSize: 13, lineHeight: 18 },
 
-const useBadgeStyles = makeStyles(() => ({
-  badge: { flexDirection: "row", borderRadius: 14, borderWidth: 1, paddingVertical: 10, paddingHorizontal: 12, alignItems: "center" },
-  cell: { flexDirection: "row", alignItems: "center", gap: 6, flex: 1, justifyContent: "center" },
-  cellTxt: { fontSize: 12 },
-  divider: { width: 1, height: 20 },
+  card: {
+    borderRadius: radius.lg, padding: spacing.lg, gap: spacing.md,
+    borderWidth: 1, borderColor: withAlpha(colors.muted, 0.2),
+  },
+  cardHeader: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  cardName: { color: "#FFFFFF", fontFamily: typography.displayHero, fontSize: 22, lineHeight: 26 },
+  cardTag: { fontFamily: typography.bodyMedium, fontSize: 10, letterSpacing: 1.2, marginTop: 2 },
+  cardBlurb: { color: "rgba(234,242,255,0.78)", fontFamily: typography.body, fontSize: 13, lineHeight: 19 },
+
+  indexPill: { width: 36, height: 36, borderRadius: 18, borderWidth: 1, alignItems: "center", justifyContent: "center" },
+  indexTxt: { fontFamily: typography.displayHero, fontSize: 18 },
+
+  iconRow: { flexDirection: "row", gap: 8, marginTop: 4 },
+  iconTile: { flex: 1, aspectRatio: 1, borderRadius: 14, borderWidth: 1, alignItems: "center", justifyContent: "center" },
+
+  badge: { flexDirection: "row", borderRadius: 14, borderWidth: 1, paddingVertical: 10, paddingHorizontal: 10, alignItems: "center" },
+  badgeCell: { flexDirection: "row", alignItems: "center", gap: 6, flex: 1, justifyContent: "center" },
+  badgeDiv: { width: 1, height: 22 },
+  badgeTxt: { color: "#EAF2FF", fontFamily: typography.body, fontSize: 11 },
+
+  footer: { fontFamily: typography.body, fontSize: 12, lineHeight: 17, textAlign: "center", marginTop: spacing.sm },
 }));
