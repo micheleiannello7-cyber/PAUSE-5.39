@@ -337,6 +337,19 @@
   "previous": "pause/hero/geo-borders-3e2136ec4ace.webp",
   "reason": "Un’immagine senza persone può essere più diretta e specifica: una mappa politica con confini irregolari comunica subito il tema di forme, trattati e geografia."
  },
+ "geo-highest-mountain": {
+  "at": "2026-10-08T06:35:42.966864+00:00",
+  "backup": "covers_backup_pre_nofaces/geo-highest-mountain.webp",
+  "check": {
+   "faces": "none",
+   "people": "none",
+   "quality": "ok",
+   "reason": "Immagine di alta qualità che rappresenta perfettamente il tema delle montagne più alte.",
+   "verdict": "coherent"
+  },
+  "previous": "pause/hero/geo-highest-mountain-d40d5ae07f36.webp",
+  "reason": "Si può sostituire con un soggetto più diretto e specifico: l’Everest stesso, evitando la figura umana senza perdere chiarezza editoriale."
+ },
  "geo-map-lies": {
   "at": "2026-10-07T11:39:57.374638+00:00",
   "backup": "covers_backup_pre_nofaces/geo-map-lies.webp",
@@ -388,5 +401,96 @@
   },
   "previous": "pause/hero/lez-eco-cfb3796386fa.webp",
   "reason": "Si può mostrare il fenomeno in modo diretto e più specifico della persona in montagna."
+ },
+ "lez-orientarsi-stelle": {
+  "at": "2026-10-08T06:35:37.673700+00:00",
+  "backup": "covers_backup_pre_nofaces/lez-orientarsi-stelle.webp",
+  "check": {
+   "faces": "none",
+   "people": "none",
+   "quality": "ok",
+   "reason": "L'immagine mostra chiaramente un cielo stellato con costellazioni, perfettamente in linea con il tema dell'orientamento astronomico.",
+   "verdict": "coherent"
+  },
+  "previous": "pause/hero/lez-orientarsi-stelle-879dff910827.webp",
+  "reason": "Si può mostrare direttamente il soggetto concreto della storia: il Grande Carro e la Stella Polare, senza ricorrere a una persona."
+ },
+ "lez-prospettiva": {
+  "at": "2026-10-08T06:35:37.292764+00:00",
+  "backup": "covers_backup_pre_nofaces/lez-prospettiva.webp",
+  "check": {
+   "faces": "none",
+   "people": "none",
+   "quality": "ok",
+   "reason": "L'immagine illustra perfettamente la prospettiva lineare e il richiamo al Rinascimento citato nel testo.",
+   "verdict": "coherent"
+  },
+  "previous": "pause/hero/lez-prospettiva-69cef943473d.webp",
+  "reason": "Un soggetto senza persone è più chiaro e più pertinente: la prospettiva lineare si spiega perfettamente con un interno rinascimentale o un disegno costruito sui punti di fuga."
+ },
+ "nat-tides": {
+  "at": "2026-10-08T06:35:50.997024+00:00",
+  "backup": "covers_backup_pre_nofaces/nat-tides.webp",
+  "check": {
+   "faces": "none",
+   "people": "none",
+   "quality": "ok",
+   "reason": "L'immagine della luna sul mare notturno è perfettamente coerente con il tema delle maree trattato nell'articolo.",
+   "verdict": "coherent"
+  },
+  "previous": "pause/hero/nat-tides-92cee03999d8.webp",
+  "reason": "Una copertina senza persone può raccontare le maree in modo più diretto e specifico mostrando il mare che avanza o si ritira sotto la Luna."
+ },
+ "printing-press": {
+  "at": "2026-10-08T06:35:49.218469+00:00",
+  "backup": "covers_backup_pre_nofaces/printing-press.webp",
+  "check": {
+   "faces": "none",
+   "people": "none",
+   "quality": "ok",
+   "reason": "L'immagine rappresenta esattamente una pressa da stampa d'epoca coerente con il tema storico dell'articolo.",
+   "verdict": "coherent"
+  },
+  "previous": "pause/hero/printing-press-4504f076a0db.webp",
+  "reason": "La pressa tipografica a caratteri mobili è un soggetto concreto, storico e immediatamente leggibile senza persone, perfettamente coerente col titolo."
+ },
+ "psi-dunning-kruger": {
+  "at": "2026-10-08T06:35:57.440807+00:00",
+  "backup": "covers_backup_pre_nofaces/psi-dunning-kruger.webp",
+  "check": {
+   "faces": "none",
+   "people": "none",
+   "quality": "ok",
+   "reason": "Il trofeo su un banco con test scolastici è una metafora efficace del sentirsi i migliori pur in contesti di apprendimento o valutazione.",
+   "verdict": "coherent"
+  },
+  "previous": "pause/hero/psi-dunning-kruger-392ed29baa54.webp",
+  "reason": "Si può rendere il paradosso in modo immediato e specifico con un oggetto che comunica falsa padronanza senza mostrare persone."
+ },
+ "v4-lez-coincidenze": {
+  "at": "2026-10-08T06:36:09.579433+00:00",
+  "backup": "covers_backup_pre_nofaces/v4-lez-coincidenze.webp",
+  "check": {
+   "faces": "none",
+   "people": "none",
+   "quality": "ok",
+   "reason": "L'immagine rappresenta visivamente il paradosso del compleanno citato nel testo (23 cupcakes con candeline).",
+   "verdict": "coherent"
+  },
+  "previous": "pause/hero/v4-lez-coincidenze-adb8b4501ddc.webp",
+  "reason": "Una cover senza persone può essere più chiara e specifica: il paradosso del compleanno rende subito visibile il tema delle coincidenze improbabili ma comuni."
+ },
+ "v4-lez-fonti-primarie": {
+  "at": "2026-10-08T06:36:10.773056+00:00",
+  "backup": "covers_backup_pre_nofaces/v4-lez-fonti-primarie.webp",
+  "check": {
+   "faces": "none",
+   "people": "none",
+   "quality": "ok",
+   "reason": "L'immagine illustra perfettamente gli esempi citati nel sottotitolo: una lettera antica (fonte primaria), un libro di storia e una pellicola cinematografica (documentario).",
+   "verdict": "coherent"
+  },
+  "previous": "pause/hero/v4-lez-fonti-primarie-b508bc5a59f7.webp",
+  "reason": "Si può rendere il tema in modo più preciso e senza persone mostrando fonti storiche concrete a confronto, già coerenti con il contenuto dell’articolo."
  }
 }

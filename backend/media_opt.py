@@ -35,11 +35,42 @@ def cutout_png(raw: bytes, tight: bool = False) -> bytes:
     """Oggetto 3D su sfondo nero → PNG RGBA con lo sfondo reso trasparente
     (stesso keying delle icone CTA), per usarlo sopra superfici colorate."""
     from generate_cta_icons import fit_square, key_out_background
+    from collections import deque
     image = ImageOps.exif_transpose(Image.open(io.BytesIO(raw))).convert("RGB")
     out = io.BytesIO()
-    # Ritaglio stretto sull'oggetto (stesso margine delle icone CTA), così
-    # occupa lo stesso spazio delle altre icone 3D.
-    cutout = key_out_background(image)
+    # Flood-fill più tollerante: la sorgente 3D ha un contact-shadow bakeato
+    # che sfuma dal nero puro a un grigio scuro; con tol=40 il transiente del
+    # grigio sopravviveva come alone sotto l'oggetto. Il wireframe colorato
+    # resta ben distante da questa soglia.
+    cutout = key_out_background(image, tol=90)
+    # Seconda passata: pixel sopravvissuti che sono scuri (RGB medio < 110) e
+    # connessi ai bordi dell'immagine, SOLO nella metà bassa (dove abita il
+    # contact-shadow 3D) sono residuo → alfa=0. L'oggetto wireframe colorato
+    # resta ben distante da questa soglia, ma per sicurezza non tocchiamo mai
+    # la metà alta dove alcune parti dell'oggetto possono essere scure.
+    w, h = cutout.size
+    px = cutout.load()
+    seen = bytearray(w * h)
+    q: deque = deque()
+    y_floor = int(h * 0.45)  # inizio della zona "pavimento"
+    for x in range(w):
+        q.append((x, h - 1))
+    for y in range(y_floor, h):
+        q.append((0, y)); q.append((w - 1, y))
+    while q:
+        x, y = q.popleft()
+        if x < 0 or y < y_floor or x >= w or y >= h or seen[y * w + x]:
+            continue
+        seen[y * w + x] = 1
+        r, g, b, a = px[x, y]
+        if a == 0 or (r + g + b) / 3 < 110:
+            px[x, y] = (0, 0, 0, 0)
+            q.extend(((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)))
+    # Soglia dura sull'alfa residua: cancella l'alone grigio del bordo del
+    # flood-fill morbido. 1 px di AA sul bordo preserva la nitidezza senza
+    # scalettature.
+    alpha = cutout.getchannel("A").point(lambda a: 255 if a > 200 else (0 if a < 160 else int((a - 160) * 255 / 40)))
+    cutout.putalpha(alpha)
     if tight:
         bbox = cutout.getchannel("A").point(lambda alpha: 255 if alpha > 8 else 0).getbbox()
         if bbox:
